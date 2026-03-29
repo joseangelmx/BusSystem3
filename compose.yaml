@@ -1,0 +1,7 @@
+﻿services:
+  bussystem:
+    image: bussystem
+    build:
+      context: .
+      dockerfile: BusSystem/Dockerfile
+
