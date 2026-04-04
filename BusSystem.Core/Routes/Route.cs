@@ -11,10 +11,9 @@ public class Route
     public int Id {get; set;}
     
     [Required]
-    public string OriginId {get; set;}
+    public int OriginId {get; set;}
     public Place Origin { get; set; } = null!;
-    [Required] 
-    public string DestinationId { get; set; } = null!;
+    [Required] public int DestinationId { get; set; }
     public Place Destination { get; set; } = null!;
     
     [Column(TypeName = "decimal(8,2)")]
