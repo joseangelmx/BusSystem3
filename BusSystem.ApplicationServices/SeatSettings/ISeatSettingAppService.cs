@@ -1,11 +1,11 @@
+using BusSystem.ApplicationServices.Shared.DTO.SeatSettings;
 namespace BusSystem.ApplicationServices.SeatSettings;
 
 public interface ISeatSettingAppService
 {
-    Task<List<UserDTO>> GetUsersAsync();
-    Task<UserDTO> GetUserAsync(string id);
-    Task AddUserAsync(NewUserDTO userDto);
-    Task EditUserAsync(string id, EditUserDTO userDto);
-    Task DeleteUserAsync(string id);
-    Task<List<RolesNameDTO>> GetRolesAsync();
+    Task<List<SeatSettingsDTO>> GetSeatSettingsAsync();
+    Task<SeatSettingsDTO> GetSeatSettingByIdAsync(int id);
+    Task<int> AddSeatSettingAsync(NewSeatSettingDTO seatSettingDto);
+    Task EditSeatSettingAsync(int id, NewSeatSettingDTO seatSettingDto);
+    Task DeleteSeatSettingAsync(int id);
 }

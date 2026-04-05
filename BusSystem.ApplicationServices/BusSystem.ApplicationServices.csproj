@@ -6,4 +6,15 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BusSystem.ApplicationServices.Shared\BusSystem.ApplicationServices.Shared.csproj" />
+      <ProjectReference Include="..\BusSystem.DataAccess\BusSystem.DataAccess.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="AutoMapper">
+        <HintPath>..\..\..\..\.nuget\packages\automapper\16.1.1\lib\net8.0\AutoMapper.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

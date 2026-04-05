@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BusSystem.ApplicationServices.Shared\BusSystem.ApplicationServices.Shared.csproj" />
       <ProjectReference Include="..\BusSystem.Core\BusSystem.Core.csproj" />
     </ItemGroup>
 
