@@ -1,5 +1,12 @@
 using BusSystem.ApplicationServices;
+using BusSystem.ApplicationServices.Buses;
+using BusSystem.ApplicationServices.SeatSettings;
+using BusSystem.Core.Buses;
+using BusSystem.Core.SeatSettings;
 using BusSystem.DataAccess;
+using BusSystem.DataAccess.Repositories;
+using BusSystem.DataAccess.Repositories.Buses;
+using BusSystem.DataAccess.Repositories.SeatSettings;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +40,21 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddMaps(typeof(MapperProfile).Assembly);
 });
+// =====================
+// APPLICATION SERVICES
+// =====================
+builder.Services.AddTransient<ISeatSettingAppService, SeatSettingAppService>();
+builder.Services.AddTransient<IBusAppService, BusAppService>();
+//builder.Services.AddTransient<IUserAppService, UserAppService>();
 
+// =====================
+// REPOSITORIES
+// =====================
+builder.Services.AddTransient<SeatSettingRepository>();
+builder.Services.AddTransient<IRepository<int, SeatSetting>, SeatSettingRepository>();
+
+builder.Services.AddTransient<BusRepository>();
+builder.Services.AddTransient<IRepository<int, Bus>, BusRepository>();
 // =====================
 // MVC / SWAGGER
 // =====================
@@ -57,27 +78,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
-
+app.MapControllers();
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

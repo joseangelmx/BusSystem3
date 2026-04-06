@@ -1,8 +1,7 @@
 using BusSystem.ApplicationServices.Shared.DTO.SeatSettings;
 using BusSystem.Core.SeatSettings;
-using BusSystem.DataAccess.Repositories;
 
-namespace BusSystem.DataAccess.SeatSettings;
+namespace BusSystem.DataAccess.Repositories.SeatSettings;
 
 public class SeatSettingRepository  : Repository<int, SeatSetting>
 {
@@ -35,5 +34,21 @@ public class SeatSettingRepository  : Repository<int, SeatSetting>
 
         await Context.SaveChangesAsync();
         return entity;
+    }
+    public async Task<SeatSetting> DeleteAsync(int id)
+    {
+        var bus = Context.Buses.FirstOrDefault(bus1 => bus1.SeatSettingId == id);
+        var seatsetting = await Context.SeatSettings.FindAsync(id);
+        if (bus != null)
+        {
+            throw new Exception($"The seat setting with id {id} is currently linked to one or more buses."); 
+        }
+        if (seatsetting == null)
+        {
+            throw new Exception($"The seat setting with id {id} does not exist");
+        }
+        Context.SeatSettings.Remove(seatsetting);
+        await Context.SaveChangesAsync();
+        return seatsetting;
     }
 }

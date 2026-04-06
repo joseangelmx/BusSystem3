@@ -2,7 +2,7 @@ using AutoMapper;
 using BusSystem.ApplicationServices.Shared.DTO.SeatSettings;
 using BusSystem.DataAccess.Repositories;
 using BusSystem.Core.SeatSettings;
-using BusSystem.DataAccess.SeatSettings;
+using BusSystem.DataAccess.Repositories.SeatSettings;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusSystem.ApplicationServices.SeatSettings;
@@ -75,7 +75,7 @@ namespace BusSystem.ApplicationServices.SeatSettings;
         {
             try
             {
-                await _repository.DeleteAsync(id);
+                await _seatSettingRepository.DeleteAsync(id);
             }
             catch(Exception ex)
             {

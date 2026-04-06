@@ -1,9 +1,8 @@
-﻿using System;
+﻿#nullable disable
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
-namespace BusSystem.DataAccess.Migrations
+namespace BusSystem.DataAccess.Repositories.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration
