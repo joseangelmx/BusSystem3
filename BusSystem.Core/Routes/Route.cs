@@ -17,8 +17,8 @@ public class Route
     public int DestinationId { get; set; }
     public Place Destination { get; set; } = null!;
     
-    [Column(TypeName = "decimal(8,2)")]
-    public decimal Distance { get; set; }
+    [Required]
+    public double Distance { get; set; }
     [Required] 
     public TimeSpan TimeOfArrival { get; set; }
     public ICollection<Travel> Travels { get; set; }

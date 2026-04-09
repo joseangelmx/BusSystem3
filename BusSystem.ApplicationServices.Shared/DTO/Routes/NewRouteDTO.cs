@@ -9,8 +9,7 @@ public class NewRouteDTO
     public int OriginId {get; set;}
     [Required] 
     public int DestinationId { get; set; }
-    [Column(TypeName = "decimal(8,2)")]
-    public decimal Distance { get; set; }
-    [Required] 
-    public TimeSpan TimeOfArrival { get; set; }
+    [Required]
+    public double Distance { get; set; }
+
 }
