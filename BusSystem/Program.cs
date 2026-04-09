@@ -1,6 +1,7 @@
 using BusSystem.ApplicationServices;
 using BusSystem.ApplicationServices.Buses;
 using BusSystem.ApplicationServices.Places;
+using BusSystem.ApplicationServices.Routes;
 using BusSystem.ApplicationServices.SeatSettings;
 using BusSystem.Core.Buses;
 using BusSystem.Core.Places;
@@ -9,6 +10,7 @@ using BusSystem.DataAccess;
 using BusSystem.DataAccess.Repositories;
 using BusSystem.DataAccess.Repositories.Buses;
 using BusSystem.DataAccess.Repositories.Places;
+using BusSystem.DataAccess.Repositories.Routes;
 using BusSystem.DataAccess.Repositories.SeatSettings;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,6 +51,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddTransient<ISeatSettingAppService, SeatSettingAppService>();
 builder.Services.AddTransient<IBusAppService, BusAppService>();
 builder.Services.AddTransient<IPlaceAppService, PlaceAppService>();
+builder.Services.AddTransient<IRouteAppService, RouteAppService>();
 //builder.Services.AddTransient<IUserAppService, UserAppService>();
 
 // =====================
@@ -62,6 +65,9 @@ builder.Services.AddTransient<IRepository<int, Bus>, BusRepository>();
 
 builder.Services.AddTransient<PlaceRepository>();
 builder.Services.AddTransient<IRepository<int, Place>, PlaceRepository>();
+
+builder.Services.AddTransient<RouteRepository>();
+builder.Services.AddTransient<IRepository<int, BusSystem.Core.Routes.Route>, RouteRepository>();
 // =====================
 // MVC / SWAGGER
 // =====================

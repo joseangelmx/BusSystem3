@@ -1,6 +1,6 @@
 namespace BusSystem.DataAccess.Repositories;
 
-public interface IRepository<TId, TEntity> where TEntity : class, new()
+public interface IRepository<TId, TEntity> where TEntity : class
 {
     IQueryable<TEntity> GetAll();
 
