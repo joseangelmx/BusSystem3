@@ -12,6 +12,7 @@ namespace BusSystem.ApplicationServices.Buses;
 
 public class BusAppService : IBusAppService
 {
+
     private readonly IRepository<int, Bus> _repository;
     private readonly BusRepository _busRepository;
     private readonly  IMapper _mapper;
