@@ -1,5 +1,6 @@
 using BusSystem.Core.Buses;
 using BusSystem.Core.Places;
+using BusSystem.Core.PricingSettings;
 using BusSystem.Core.Routes;
 using BusSystem.Core.SeatSettings;
 using BusSystem.Core.Tickets;
@@ -17,8 +18,11 @@ public class BusContext : IdentityDbContext<ApplicationUser, IdentityRole, strin
     public DbSet<Place> Places { get; set; }
     public DbSet<Route>  Routes { get; set; }
     public DbSet<SeatSetting>  SeatSettings { get; set; }
+    
     public DbSet<Ticket>  Tickets { get; set; }
     public DbSet<Travel>  Travels { get; set; }
+    
+    public DbSet<PricingSetting> PricingSettings { get; set; }
     public BusContext(DbContextOptions<BusContext> options) : base(options)
     {
 

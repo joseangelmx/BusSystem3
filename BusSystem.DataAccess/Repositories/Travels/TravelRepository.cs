@@ -1,5 +1,7 @@
 using BusSystem.ApplicationServices.Shared.DTO.Travels;
 using BusSystem.Core.Travels;
+using Microsoft.EntityFrameworkCore;
+using TravelStatus = BusSystem.Core.Travels.TravelStatus;
 
 namespace BusSystem.DataAccess.Repositories.Travels;
 
@@ -14,6 +16,11 @@ public class TravelRepository : Repository<int, Travel>
     {
         var bus = await Context.Buses.FindAsync(newTravel.BusId);
         var route = await Context.Routes.FindAsync(newTravel.RouteId);
+        var pricingSettings = await Context.PricingSettings.FirstOrDefaultAsync();
+        if (pricingSettings == null)
+        {
+            throw new Exception("Pricing settings have not been configured yet.");
+        }
         if (bus == null)
         {
             throw new Exception($"The Bus with Id {newTravel.BusId} don't exist");
@@ -23,12 +30,18 @@ public class TravelRepository : Repository<int, Travel>
         {
             throw new Exception($"The Route with Id {newTravel.RouteId} don't exist");
         }
+
+        var travelPrice = ((decimal)route.Distance * pricingSettings.PricePerKm);
         var travel = new Travel
         {
           BusId  = newTravel.BusId,
           RouteId = newTravel.RouteId,
-          DepartureTime = newTravel.DepartureTime,
-          ArrivalTime = newTravel.ArrivalTime,
+          DepartureDateTime = newTravel.DepartureDateTime,
+          ArrivalDateTime = (newTravel.DepartureDateTime + route.TimeOfArrival),
+          AvailableSeats = bus.SeatSetting.NumberOfSeats,
+          Price = travelPrice,
+          Status = TravelStatus.Active
+          
         };
         await Context.Travels.AddAsync(travel);
         await Context.SaveChangesAsync();
@@ -56,8 +69,7 @@ public class TravelRepository : Repository<int, Travel>
         }
         travel.BusId = newTravel.BusId;
         travel.RouteId = newTravel.RouteId;
-        travel.ArrivalTime = newTravel.ArrivalTime;
-        travel.DepartureTime = newTravel.DepartureTime;
+        travel.DepartureDateTime = newTravel.DepartureDateTime;
         await Context.SaveChangesAsync();
         return travel;
     }

@@ -13,7 +13,13 @@ public class TravelsDTO
     [Required]
     public int RouteId { get; set; }
     [Required]
-    public TimeSpan DepartureTime { get; set; }
+    public DateTime DepartureDateTime { get; set; }
     [Required]
-    public TimeSpan ArrivalTime { get; set; }
+    public DateTime ArrivalDateTime { get; set; }
+    [Required]
+    public int AvailableSeats { get; set; }
+    [Required]
+    public decimal Price { get; set; }
+    [Required]
+    public TravelStatus Status { get; set; }
 }

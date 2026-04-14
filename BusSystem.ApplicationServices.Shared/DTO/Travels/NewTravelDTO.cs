@@ -2,6 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BusSystem.ApplicationServices.Shared.DTO.Travels;
 
+public enum TravelStatus
+{
+    Active = 1,
+    Cancelled = 2
+}
 public class NewTravelDTO
 {
     [Required]
@@ -9,7 +14,5 @@ public class NewTravelDTO
     [Required]
     public int RouteId { get; set; }
     [Required]
-    public TimeSpan DepartureTime { get; set; }
-    [Required]
-    public TimeSpan ArrivalTime { get; set; }
+    public DateTime DepartureDateTime { get; set; }
 }
