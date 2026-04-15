@@ -73,4 +73,6 @@ public class TravelRepository : Repository<int, Travel>
         await Context.SaveChangesAsync();
         return travel;
     }
+    
+    
 }
