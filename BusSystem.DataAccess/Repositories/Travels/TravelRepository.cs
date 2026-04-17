@@ -11,7 +11,6 @@ public class TravelRepository : Repository<int, Travel>
     {
         
     }
-
     public async Task<Travel> AddAsync(NewTravelDTO newTravel)
     {
         var bus = await Context.Buses.FindAsync(newTravel.BusId);
