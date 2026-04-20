@@ -1,5 +1,6 @@
 using BusSystem.ApplicationServices.Shared.DTO.Travels;
 
+namespace BusSystem.ApplicationServices.Travels;
 public interface ITravelsAppService
 {
     Task<List<TravelsDTO>> GetTravelsAsync();

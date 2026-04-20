@@ -5,6 +5,7 @@ using BusSystem.DataAccess.Repositories;
 using BusSystem.DataAccess.Repositories.Travels;
 using Microsoft.EntityFrameworkCore;
 
+namespace BusSystem.ApplicationServices.Travels;
 public class TravelsAppService : ITravelsAppService
 {
     private readonly IRepository<int, Travel> _repository;

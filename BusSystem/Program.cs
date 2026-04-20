@@ -3,15 +3,18 @@ using BusSystem.ApplicationServices.Buses;
 using BusSystem.ApplicationServices.Places;
 using BusSystem.ApplicationServices.Routes;
 using BusSystem.ApplicationServices.SeatSettings;
+using BusSystem.ApplicationServices.Travels;
 using BusSystem.Core.Buses;
 using BusSystem.Core.Places;
 using BusSystem.Core.SeatSettings;
+using BusSystem.Core.Travels;
 using BusSystem.DataAccess;
 using BusSystem.DataAccess.Repositories;
 using BusSystem.DataAccess.Repositories.Buses;
 using BusSystem.DataAccess.Repositories.Places;
 using BusSystem.DataAccess.Repositories.Routes;
 using BusSystem.DataAccess.Repositories.SeatSettings;
+using BusSystem.DataAccess.Repositories.Travels;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +55,7 @@ builder.Services.AddTransient<ISeatSettingAppService, SeatSettingAppService>();
 builder.Services.AddTransient<IBusAppService, BusAppService>();
 builder.Services.AddTransient<IPlaceAppService, PlaceAppService>();
 builder.Services.AddTransient<IRouteAppService, RouteAppService>();
+builder.Services.AddTransient<ITravelsAppService, TravelsAppService>();
 //builder.Services.AddTransient<IUserAppService, UserAppService>();
 
 // =====================
@@ -68,6 +72,9 @@ builder.Services.AddTransient<IRepository<int, Place>, PlaceRepository>();
 
 builder.Services.AddTransient<RouteRepository>();
 builder.Services.AddTransient<IRepository<int, BusSystem.Core.Routes.Route>, RouteRepository>();
+
+builder.Services.AddTransient<TravelRepository>();
+builder.Services.AddTransient<IRepository<int, Travel>, TravelRepository>();
 // =====================
 // MVC / SWAGGER
 // =====================
