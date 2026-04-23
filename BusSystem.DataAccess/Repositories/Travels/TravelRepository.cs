@@ -13,9 +13,13 @@ public class TravelRepository : Repository<int, Travel>
     }
     public async Task<Travel> AddAsync(NewTravelDTO newTravel)
     {
-        var bus = await Context.Buses.FindAsync(newTravel.BusId);
+        var bus = await Context.Buses
+            .Include(b => b.SeatSetting)
+            .FirstOrDefaultAsync(b => b.Id == newTravel.BusId);
         var route = await Context.Routes.FindAsync(newTravel.RouteId);
-        var pricingSettings = await Context.PricingSettings.FirstOrDefaultAsync();
+        var pricingSettings = await Context.PricingSettings
+            .OrderBy(ps => ps.Id)
+            .LastOrDefaultAsync();
         if (pricingSettings == null)
         {
             throw new Exception("Pricing settings have not been configured yet.");

@@ -1,17 +1,20 @@
 using BusSystem.ApplicationServices;
 using BusSystem.ApplicationServices.Buses;
 using BusSystem.ApplicationServices.Places;
+using BusSystem.ApplicationServices.PricingSettings;
 using BusSystem.ApplicationServices.Routes;
 using BusSystem.ApplicationServices.SeatSettings;
 using BusSystem.ApplicationServices.Travels;
 using BusSystem.Core.Buses;
 using BusSystem.Core.Places;
+using BusSystem.Core.PricingSettings;
 using BusSystem.Core.SeatSettings;
 using BusSystem.Core.Travels;
 using BusSystem.DataAccess;
 using BusSystem.DataAccess.Repositories;
 using BusSystem.DataAccess.Repositories.Buses;
 using BusSystem.DataAccess.Repositories.Places;
+using BusSystem.DataAccess.Repositories.PricingSettings;
 using BusSystem.DataAccess.Repositories.Routes;
 using BusSystem.DataAccess.Repositories.SeatSettings;
 using BusSystem.DataAccess.Repositories.Travels;
@@ -56,6 +59,7 @@ builder.Services.AddTransient<IBusAppService, BusAppService>();
 builder.Services.AddTransient<IPlaceAppService, PlaceAppService>();
 builder.Services.AddTransient<IRouteAppService, RouteAppService>();
 builder.Services.AddTransient<ITravelsAppService, TravelsAppService>();
+builder.Services.AddTransient<IPricingSettingAppService, PricingSettingAppService>();
 //builder.Services.AddTransient<IUserAppService, UserAppService>();
 
 // =====================
@@ -75,6 +79,9 @@ builder.Services.AddTransient<IRepository<int, BusSystem.Core.Routes.Route>, Rou
 
 builder.Services.AddTransient<TravelRepository>();
 builder.Services.AddTransient<IRepository<int, Travel>, TravelRepository>();
+
+builder.Services.AddTransient<PricingSettingRepository>();
+builder.Services.AddTransient<IRepository<int, PricingSetting>, PricingSettingRepository>();
 // =====================
 // MVC / SWAGGER
 // =====================

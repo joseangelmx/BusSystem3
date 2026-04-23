@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusSystem.ApplicationServices.Shared.DTO.Buses;
 using BusSystem.ApplicationServices.Shared.DTO.Places;
+using BusSystem.ApplicationServices.Shared.DTO.PricingSettings;
 using BusSystem.ApplicationServices.Shared.DTO.Routes;
 using BusSystem.ApplicationServices.Shared.DTO.SeatSettings;
 using BusSystem.Core.Buses;
@@ -9,6 +10,7 @@ using BusSystem.Core.Places;
 using BusSystem.Core.Routes;
 using BusSystem.Core.Travels;
 using BusSystem.ApplicationServices.Shared.DTO.Travels;
+using BusSystem.Core.PricingSettings;
 
 namespace BusSystem.ApplicationServices;
 
@@ -30,5 +32,8 @@ public class MapperProfile : Profile
 
         CreateMap<Travel, TravelsDTO>().ReverseMap();
         CreateMap<Travel, NewTravelDTO>().ReverseMap();
+        
+        CreateMap<PricingSetting, PricingSettingDTO>().ReverseMap();
+        CreateMap<PricingSetting, NewPricingSettingDTO>().ReverseMap();
     }
 }
