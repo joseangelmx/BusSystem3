@@ -18,12 +18,14 @@ public class TicketsRepository : Repository<int, Ticket>
     {
         var user = await Context.Users.FindAsync(newTicketDto.UserId);
         var route = await Context.Travels.FindAsync(newTicketDto.TravelId);
-        var pricingSettings = await Context.PricingSettings
-            .OrderBy(ps => ps.Id)
-            .LastOrDefaultAsync();
         if (user == null)
         {
             throw new Exception("This user don´t exist");
+        }
+
+        if (route == null)
+        {
+            
         }
 
     }
