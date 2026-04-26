@@ -6,7 +6,6 @@ namespace BusSystem.ApplicationServices.Shared.DTO.Tickets;
 public class NewTicketDTO
 {
     
-    public int Id { get; set; }
 
     [Required]
     public string UserId { get; set; }
