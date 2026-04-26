@@ -30,13 +30,13 @@ public class TicketsRepository : Repository<int, Ticket>
                 break;
         }
         var user = await Context.Users.FindAsync(newTicketDto.UserId);
-        var route = await Context.Travels.FindAsync(newTicketDto.TravelId);
+        var travel = await Context.Travels.FindAsync(newTicketDto.TravelId);
         if (user == null)
         {
             throw new Exception("This user don´t exist");
         }
 
-        if (route == null)
+        if (travel == null)
         {
             throw new Exception("This route don´t exist");
         }
@@ -48,7 +48,7 @@ public class TicketsRepository : Repository<int, Ticket>
             SeatNumber = newTicketDto.SeatNumber,
             FareType = newTicketDto.FareType,
             PurchaseDate = newTicketDto.PurchaseDate,
-            Price =  (newTicketDto.Price * (decimal)discount),
+            Price =  (travel.Price * (decimal)discount),
             Status = newTicketDto.Status
         };
         Context.Tickets.Add(ticket);
@@ -73,7 +73,7 @@ public class TicketsRepository : Repository<int, Ticket>
         }
         var ticket = await Context.Tickets.FindAsync(id);
         var user = await Context.Users.FindAsync(newTicketDto.UserId);
-        var route = await Context.Travels.FindAsync(newTicketDto.TravelId);
+        var travel = await Context.Travels.FindAsync(newTicketDto.TravelId);
         if (ticket == null)
         {
             throw new Exception($"The ticket with id {id} was not found");
@@ -83,7 +83,7 @@ public class TicketsRepository : Repository<int, Ticket>
             throw new Exception("This user don´t exist");
         }
 
-        if (route == null)
+        if (travel == null)
         {
             throw new Exception("This route don´t exist");
         }
@@ -93,7 +93,7 @@ public class TicketsRepository : Repository<int, Ticket>
         ticket.SeatNumber = newTicketDto.SeatNumber;
         ticket.FareType = newTicketDto.FareType;
         ticket.PurchaseDate = newTicketDto.PurchaseDate;
-        ticket.Price = (newTicketDto.Price * (decimal)discount);
+        ticket.Price = (travel.Price * (decimal)discount);
         ticket.Status = newTicketDto.Status;
         await Context.SaveChangesAsync();
         return ticket;

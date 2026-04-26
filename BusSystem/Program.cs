@@ -4,11 +4,13 @@ using BusSystem.ApplicationServices.Places;
 using BusSystem.ApplicationServices.PricingSettings;
 using BusSystem.ApplicationServices.Routes;
 using BusSystem.ApplicationServices.SeatSettings;
+using BusSystem.ApplicationServices.Tickets;
 using BusSystem.ApplicationServices.Travels;
 using BusSystem.Core.Buses;
 using BusSystem.Core.Places;
 using BusSystem.Core.PricingSettings;
 using BusSystem.Core.SeatSettings;
+using BusSystem.Core.Tickets;
 using BusSystem.Core.Travels;
 using BusSystem.DataAccess;
 using BusSystem.DataAccess.Repositories;
@@ -17,6 +19,7 @@ using BusSystem.DataAccess.Repositories.Places;
 using BusSystem.DataAccess.Repositories.PricingSettings;
 using BusSystem.DataAccess.Repositories.Routes;
 using BusSystem.DataAccess.Repositories.SeatSettings;
+using BusSystem.DataAccess.Repositories.Tickets;
 using BusSystem.DataAccess.Repositories.Travels;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,6 +63,7 @@ builder.Services.AddTransient<IPlaceAppService, PlaceAppService>();
 builder.Services.AddTransient<IRouteAppService, RouteAppService>();
 builder.Services.AddTransient<ITravelsAppService, TravelsAppService>();
 builder.Services.AddTransient<IPricingSettingAppService, PricingSettingAppService>();
+builder.Services.AddTransient<ITicketAppService, TicketAppService>();
 //builder.Services.AddTransient<IUserAppService, UserAppService>();
 
 // =====================
@@ -82,6 +86,9 @@ builder.Services.AddTransient<IRepository<int, Travel>, TravelRepository>();
 
 builder.Services.AddTransient<PricingSettingRepository>();
 builder.Services.AddTransient<IRepository<int, PricingSetting>, PricingSettingRepository>();
+
+builder.Services.AddTransient<TicketsRepository>();
+builder.Services.AddTransient<IRepository<int, Ticket>, TicketsRepository>();
 // =====================
 // MVC / SWAGGER
 // =====================
