@@ -1,5 +1,6 @@
 using BusSystem.ApplicationServices.Shared.DTO.Users;
 using BusSystem.Core.Users;
+using BusSystem.DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 
 namespace BusSystem.ApplicationServices.Users;
@@ -7,10 +8,11 @@ namespace BusSystem.ApplicationServices.Users;
 public class UserAppService : IUserAppService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-
-    public UserAppService(UserManager<ApplicationUser> userManager)
+    //private readonly IRepository<int,ApplicationUser> _repository;
+    public UserAppService(UserManager<ApplicationUser> userManager, IRepository<int,ApplicationUser> repository)
     {
         _userManager = userManager;
+     //   _repository = repository;
     }
 
     public async Task<UserDTO> GetUserByIdAsync(string id)
@@ -80,6 +82,7 @@ public class UserAppService : IUserAppService
 
     public async Task<IdentityResult> CreateUserAsync(NewUserDto dto)
     {
+        try{
         var user = new ApplicationUser
         {
             UserName = dto.Email,
@@ -98,6 +101,11 @@ public class UserAppService : IUserAppService
         }
 
         return result;
+        } 
+        catch(Exception ex)
+        {
+            throw new Exception($"CreateUserAsync Failed {ex}");
+        }
     }
     
     public async Task<IdentityResult> UpdateUserAsync(string id, EditUserDTO dto)
@@ -117,4 +125,15 @@ public class UserAppService : IUserAppService
 
         return await _userManager.UpdateAsync(user);
     }
+
+    public async Task<bool> DeleteUserAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return false;
+
+        var result = await _userManager.DeleteAsync(user);
+        return result.Succeeded;
+    }
+    
 }

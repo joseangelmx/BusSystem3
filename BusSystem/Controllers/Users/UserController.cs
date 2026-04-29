@@ -10,13 +10,10 @@ namespace BusSystem.Controllers.Users;
 public class UserController : ControllerBase
 {
     private readonly IUserAppService _userAppService;
-    private readonly ILogger<UserController> _logger;
-    public UserController(IUserAppService userAppService, ILogger<UserController> logger)
+    public UserController(IUserAppService userAppService)
     {
             _userAppService = userAppService;
-            _logger = logger;
     }
-
 
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -28,7 +25,6 @@ public class UserController : ControllerBase
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ERROR SELECT ToteInformation IN UserController {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
             }
         }
@@ -42,14 +38,12 @@ public class UserController : ControllerBase
                 UserDTO user = await _userAppService.GetUserByIdAsync(id);
                 if (user == null)
                 {
-                    _logger.LogError($"ERROR SELECT ToteInformation WHERE Id = {id} IN UserController, Message: User with Id: {id} not found!..");
                     return NotFound($"User with Id: {id} not found!..");
                 }
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ERROR SELECT ToteInformation WHERE Id = {id} IN UserController {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
             }
         }
@@ -59,34 +53,30 @@ public class UserController : ControllerBase
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(value.PhoneNumber) || string.IsNullOrWhiteSpace(value.Password) || string.IsNullOrWhiteSpace(value.Email)
-                    || string.IsNullOrWhiteSpace(value.UserName) || value == null)
+                if (string.IsNullOrWhiteSpace(value.Password) || string.IsNullOrWhiteSpace(value.Email))
                 {
-                    _logger.LogError($"ERROR INSERT ToteInformation IN UserController, Message: The entity cannot be null, all field are required");
                     return BadRequest("The entity cannot be null, all field are required");
                 }
-                await _userAppService.AddUserAsync(value);
+                await _userAppService.CreateUserAsync(value);
                 return Ok(new { message = "User added successfully" });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ERROR INSERT ToteInformation IN UserController {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
             }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(string id, EditUserDto value)
+        public async Task<IActionResult> Put(string id, EditUserDTO value)
         {
             try
             {
-                await _userAppService.EditUserAsync(id, value);
+                await _userAppService.UpdateUserAsync(id, value);
                 return Ok(new { message = "User edited successfully" });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ERROR UPDATE ToteInformation WHERE Id = {id} IN UserController {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
             }
         }
@@ -113,8 +103,8 @@ public class UserController : ControllerBase
 
                 string token = authorizationHeader.Substring(bearerIndex + "Bearer".Length).Trim();
                 string email = await ExtractClaimFromTokenAsync(token, "email");
-                List<UserDto> users = await _userAppService.GetUsersAsync();
-                UserDto actualUser = users.FirstOrDefault(x => x.Email == email);
+                List<UserDTO> users = await _userAppService.GetUsersAsync();
+                UserDTO actualUser = users.FirstOrDefault(x => x.Email == email);
                 if (actualUser.Id != id && actualUser != null)
                 {
                     await _userAppService.DeleteUserAsync(id);
@@ -132,14 +122,14 @@ public class UserController : ControllerBase
             }
         }
 
-
+/*
         [Authorize(Roles = "Admin")]
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
             try
             {
-                List<RolesNameDto> roles = await _userAppService.GetRolesAsync();
+                List<RolesNameDTO> roles = await _userAppService.GetUsersAsync();
                 return Ok(roles);
             }
             catch (Exception ex)
@@ -148,7 +138,7 @@ public class UserController : ControllerBase
                 return StatusCode(500, new { error = $"{ex.Message}" });
             }
         }
-
+*/
         private async Task<string> ExtractClaimFromTokenAsync(string token, string claimType)
         {
             var handler = new JwtSecurityTokenHandler();
