@@ -1,4 +1,5 @@
 using System.Text;
+using BusSystem.ApplicationServices.Shared.Config;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,6 +19,7 @@ public class JwtOptions
 
         SigningCredentials SigningCredentials { get; }
     }
+
     public class JwtIssuerFactory : IJwtIssuerOptions
     {
         public String Issuer { get; private set; }
@@ -44,8 +46,10 @@ public class JwtOptions
             SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.Aes128CbcHmacSha256);
 
         }
+
         public async Task<String> JtiGenerator()
         {
             return await Task.FromResult(Guid.NewGuid().ToString());
         }
+    }
 }
