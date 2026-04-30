@@ -5,9 +5,10 @@ namespace BusSystem.ApplicationServices.Users;
 
 public interface IUserAppService
 {
-    Task<UserDTO> GetUserByIdAsync(string id);
-    Task<List<UserDTO>> GetUsersAsync();
-    Task<IdentityResult> CreateUserAsync(NewUserDto dto);
-    Task<IdentityResult> UpdateUserAsync(string id, EditUserDTO dto);
-    Task<bool> DeleteUserAsync(string userId);
+        Task<List<UserDTO>> GetUsersAsync();
+        Task<UserDTO> GetUserAsync(string id);
+        Task AddUserAsync(NewUserDTO userDto);
+        Task EditUserAsync(string id, EditUserDTO userDto);
+        Task DeleteUserAsync(string id);
+        Task<List<RolesNameDTO>> GetRolesAsync();
 }

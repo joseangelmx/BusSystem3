@@ -5,16 +5,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BusSystem.Controllers.Users;
-[Route("api/[controller]")]
-[ApiController]
-public class UserController : ControllerBase
-{
-    private readonly IUserAppService _userAppService;
-    public UserController(IUserAppService userAppService)
-    {
-            _userAppService = userAppService;
-    }
 
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
+    {
+        private readonly IUserAppService _userAppService;
+        public UserController(IUserAppService userAppService)
+        {
+            _userAppService = userAppService;
+        }
+        
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -28,14 +29,13 @@ public class UserController : ControllerBase
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
             }
         }
-
-
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
             try
             {
-                UserDTO user = await _userAppService.GetUserByIdAsync(id);
+                UserDTO user = await _userAppService.GetUserAsync(id);
                 if (user == null)
                 {
                     return NotFound($"User with Id: {id} not found!..");
@@ -49,30 +49,26 @@ public class UserController : ControllerBase
         }
         
         [HttpPost]
-        public async Task<IActionResult> Post(NewUserDto value)
+        public async Task<IActionResult> Post(NewUserDTO value)
         {
-            try
+            if (value == null ||
+                string.IsNullOrWhiteSpace(value.PhoneNumber) ||
+                string.IsNullOrWhiteSpace(value.Password) ||
+                string.IsNullOrWhiteSpace(value.Email))
             {
-                if (string.IsNullOrWhiteSpace(value.Password) || string.IsNullOrWhiteSpace(value.Email))
-                {
-                    return BadRequest("The entity cannot be null, all field are required");
-                }
-                await _userAppService.CreateUserAsync(value);
-                return Ok(new { message = "User added successfully" });
+                return BadRequest("All fields are required");
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
-            }
-        }
 
-        [Authorize(Roles = "Admin")]
+            await _userAppService.AddUserAsync(value);
+            return Created("", new { message = "User added successfully" });
+        }
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, EditUserDTO value)
         {
             try
             {
-                await _userAppService.UpdateUserAsync(id, value);
+                await _userAppService.EditUserAsync(id, value);
                 return Ok(new { message = "User edited successfully" });
             }
             catch (Exception ex)
@@ -80,8 +76,7 @@ public class UserController : ControllerBase
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
             }
         }
-
-        [Authorize(Roles = "Admin")]
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
@@ -122,23 +117,21 @@ public class UserController : ControllerBase
             }
         }
 
-/*
-        [Authorize(Roles = "Admin")]
+        
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
             try
             {
-                List<RolesNameDTO> roles = await _userAppService.GetUsersAsync();
+                List<RolesNameDTO> roles = await _userAppService.GetRolesAsync();
                 return Ok(roles);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ERROR GetRoles IN UserController {ex.Message}");
                 return StatusCode(500, new { error = $"{ex.Message}" });
             }
         }
-*/
+
         private async Task<string> ExtractClaimFromTokenAsync(string token, string claimType)
         {
             var handler = new JwtSecurityTokenHandler();
@@ -152,4 +145,4 @@ public class UserController : ControllerBase
             return null;
         }
 
-}
+    }

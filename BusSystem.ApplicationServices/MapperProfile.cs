@@ -11,8 +11,11 @@ using BusSystem.Core.Places;
 using BusSystem.Core.Routes;
 using BusSystem.Core.Travels;
 using BusSystem.ApplicationServices.Shared.DTO.Travels;
+using BusSystem.ApplicationServices.Shared.DTO.Users;
 using BusSystem.Core.PricingSettings;
 using BusSystem.Core.Tickets;
+using BusSystem.Core.Users;
+using Microsoft.AspNetCore.Identity;
 
 namespace BusSystem.ApplicationServices;
 
@@ -40,5 +43,10 @@ public class MapperProfile : Profile
         
         CreateMap<Ticket, NewTicketDTO>().ReverseMap();
         CreateMap<Ticket,TicketDTO>().ReverseMap();
+        
+        CreateMap<ApplicationUser, UserDTO>().ReverseMap();
+        CreateMap<ApplicationUser, NewUserDTO>().ReverseMap();
+        CreateMap<ApplicationUser, EditUserDTO>().ReverseMap();
+        CreateMap<IdentityRole, RolesNameDTO>();
     }
 }

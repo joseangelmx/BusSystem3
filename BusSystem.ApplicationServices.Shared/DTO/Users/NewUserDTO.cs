@@ -3,7 +3,7 @@ using BusSystem.Core.Users;
 
 namespace BusSystem.ApplicationServices.Shared.DTO.Users;
 
-public class NewUserDto
+public class NewUserDTO
 {
     [Required]
     [EmailAddress]
@@ -17,7 +17,8 @@ public class NewUserDto
 
     [Required]
     public string LastName { get; set; }
-
+    public string PhoneNumber { get; set; }
     public DateTime DateOfBirth { get; set; }
     public Gender Gender { get; set; }
+    public string RoleNameAssignment { get; set; }
 }
