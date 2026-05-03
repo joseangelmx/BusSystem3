@@ -93,6 +93,7 @@ builder.Services.AddTransient<IPricingSettingAppService, PricingSettingAppServic
 builder.Services.AddTransient<ITicketAppService, TicketAppService>();
 builder.Services.AddTransient<IUserAppService, UserAppService>();
 
+
 // =====================
 // REPOSITORIES
 // =====================
