@@ -41,6 +41,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var configuration = builder.Configuration;
 
+
 // =====================
 // DB CONTEXT
 // =====================
@@ -93,6 +94,7 @@ builder.Services.AddTransient<ITravelsAppService, TravelsAppService>();
 builder.Services.AddTransient<IPricingSettingAppService, PricingSettingAppService>();
 builder.Services.AddTransient<ITicketAppService, TicketAppService>();
 builder.Services.AddTransient<IUserAppService, UserAppService>();
+
 
 // =====================
 // REPOSITORIES
