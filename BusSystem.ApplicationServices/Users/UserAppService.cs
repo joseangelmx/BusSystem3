@@ -1,30 +1,38 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using BusSystem.ApplicationServices.Shared.DTO.Users;
+using BusSystem.ApplicationServices.Users;
 using BusSystem.Core.Users;
 using BusSystem.DataAccess;
-using BusSystem.DataAccess.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 
-namespace BusSystem.ApplicationServices.Users;
-
-public class UserAppService : IUserAppService
+namespace Luxottica.ApplicationServices.Users
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly BusContext _context;
-    private readonly IMapper _mapper;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    public UserAppService(UserManager<ApplicationUser> userManager, BusContext context, IMapper mapper, RoleManager<IdentityRole> roleManager)
+    public class UserAppService : IUserAppService
     {
-        _userManager = userManager;
-        _context = context;
-        _mapper = mapper;
-        _roleManager = roleManager;
-    }
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly BusContext _context;
+        private readonly IMapper _mapper;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public UserAppService(UserManager<ApplicationUser> userManager, BusContext context, IMapper mapper, RoleManager<IdentityRole> roleManager)
+        {
+            _userManager = userManager;
+            _context = context;
+            _mapper = mapper;
+            _roleManager = roleManager;
+        }
+
+
         public async Task<List<UserDTO>> GetUsersAsync()
         {
             try
@@ -43,7 +51,7 @@ public class UserAppService : IUserAppService
                         FirstName = user.FirstName,
                         LastName = user.LastName,
                         DateOfBirth = user.DateOfBirth,
-                        Gender = user.Gender,
+                        Gender =  user.Gender,
                         PhoneNumber = user.PhoneNumber,
                         Email = user.Email,
                         Role = roleName
@@ -56,17 +64,22 @@ public class UserAppService : IUserAppService
             {
                 throw new Exception($"GetUsersAsync unsuccessful. Error: {ex.Message}");
             }
-
-            
         }
 
         public async Task<UserDTO> GetUserAsync(string id)
         {
             try
             {
-                ApplicationUser user = await _userManager.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
+                var user = await _userManager.Users
+                    .FirstOrDefaultAsync(x => x.Id == id);
+
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
                 var roleName = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-                //UserDto userDto = _mapper.Map<UserDto>(user);
+
                 var userDto = new UserDTO
                 {
                     Id = user.Id,
@@ -76,7 +89,7 @@ public class UserAppService : IUserAppService
                     Gender = user.Gender,
                     PhoneNumber = user.PhoneNumber,
                     Email = user.Email,
-                    Role = roleName
+                    Role = roleName ?? "NoRole"
                 };
 
                 return userDto;
@@ -89,42 +102,28 @@ public class UserAppService : IUserAppService
 
         public async Task AddUserAsync(NewUserDTO userDto)
         {
-            try
-            {
-                
                 var existingUserByEmail = await _userManager.FindByEmailAsync(userDto.Email);
                 if (existingUserByEmail != null)
-                {
-                    throw new InvalidOperationException("Email already exists!.");
-                }
-
-                if (!userDto.Email.Contains("@") || !userDto.Email.Contains(".com"))
-                {
-                    throw new InvalidOperationException("Email is invalid!. correct are: user@example.com ");
-                }
-
-                if (userDto.PhoneNumber.Length != 10 || !userDto.PhoneNumber.All(char.IsDigit))
-                {
-                    throw new InvalidOperationException("Phone Number is invalid!. The phone number must be in 10 digit format.");
-                }
-
-                if (!IsValidPassword(userDto.Password))
-                {
-                    throw new InvalidOperationException("Password is invalid!. The password minimum length 7, must contain letters, numbers, and special character");
-                }
+                    throw new Exception("Email already exists");
 
                 var u = _mapper.Map<ApplicationUser>(userDto);
+
+                u.UserName = userDto.Email; // 🔥 CLAVE
+
+                if (!await _roleManager.RoleExistsAsync(userDto.RoleNameAssignment))
+                    throw new Exception("Role does not exist");
+
                 var result = await _userManager.CreateAsync(u, userDto.Password);
-                if (result.Succeeded)
+
+                if (!result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(u, userDto.RoleNameAssignment);
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new Exception(errors);
                 }
+
+                await _userManager.AddToRoleAsync(u, userDto.RoleNameAssignment);
             }
-            catch(Exception ex)
-            {
-                throw new Exception($"AddUserAsync unsuccessful. Error: {ex.Message}");
-            }
-        }
+        
 
         public async Task EditUserAsync(string id, EditUserDTO userDto)
         {
@@ -136,16 +135,7 @@ public class UserAppService : IUserAppService
                 {
                     throw new InvalidOperationException("User not found!..");
                 }
-
-                if (userDto.UserName != user.UserName)
-                {
-                    var existingUserByUsername = await _userManager.FindByNameAsync(userDto.UserName);
-
-                    if (existingUserByUsername != null)
-                    {
-                        throw new InvalidOperationException("Username is already exist!.");
-                    }
-                }
+                
 
                 if (userDto.PhoneNumber.Length != 10 || !userDto.PhoneNumber.All(char.IsDigit))
                 {
@@ -153,7 +143,7 @@ public class UserAppService : IUserAppService
                 }
 
                 user.PhoneNumber = userDto.PhoneNumber;
-                user.UserName = userDto.UserName;
+                user.Email = userDto.Email;
 
                 string updateRole = userDto.RoleNameAssignment;
                 
@@ -170,29 +160,26 @@ public class UserAppService : IUserAppService
 
                     await _userManager.AddToRoleAsync(user, updateRole);
                 }
-
-                UserStore<IdentityUser> store = new UserStore<IdentityUser>(_context);
-                if (store == null)
-                {
-                    throw new InvalidOperationException("The entity was not saved, the fileds are required");
-                }
-                await store.UpdateAsync(user);
+                
+                await _userManager.UpdateAsync(user);
             }
             catch (Exception ex)
             {
-                throw;
+                throw new Exception("EditUserAsync unsuccessful. Error: " + ex.Message);
             }
-            
         }
 
         public async Task DeleteUserAsync(string id)
         {
             try
             {
+                
                 var user = await _userManager.FindByIdAsync(id);
-
-                UserStore<IdentityUser> store = new UserStore<IdentityUser>(_context);
-                await store.DeleteAsync(user);
+                if (user == null)
+                {
+                    throw new InvalidOperationException("User not found!..");
+                }
+                await _userManager.DeleteAsync(user);
             }
             catch(Exception ex)
             {
@@ -210,10 +197,10 @@ public class UserAppService : IUserAppService
             }
             catch (Exception ex)
             {
-                throw new Exception($"ERROR GetRolesAsync IN UserAppService SERVICE {ex.Message}");
+                throw new Exception($"GetRolesAsync unsuccessful. Error: {ex.Message}");
             }
         }
-
+        
         private static bool IsValidPassword(string password)
         {
             string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$";
@@ -221,4 +208,5 @@ public class UserAppService : IUserAppService
 
             return regex.IsMatch(password);
         }
+    }
 }

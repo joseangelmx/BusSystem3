@@ -6,143 +6,163 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BusSystem.Controllers.Users;
 
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
+{
+    private readonly IUserAppService _userAppService;
+    private readonly ILogger<UserController> _logger;
+
+    public UserController(IUserAppService userAppService, ILogger<UserController> logger)
     {
-        private readonly IUserAppService _userAppService;
-        public UserController(IUserAppService userAppService)
+        _userAppService = userAppService;
+        _logger = logger;
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        try
         {
-            _userAppService = userAppService;
+            List<UserDTO> users = await _userAppService.GetUsersAsync();
+            return Ok(users);
         }
-        
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        catch (Exception ex)
         {
-            try
-            {
-                List<UserDTO> users = await _userAppService.GetUsersAsync();
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
-            }
+            _logger.LogError($"ERROR SELECT ToteInformation IN UserController {ex.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
         }
-        
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+    }
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(string id)
+    {
+        try
         {
-            try
+            UserDTO user = await _userAppService.GetUserAsync(id);
+            if (user == null)
             {
-                UserDTO user = await _userAppService.GetUserAsync(id);
-                if (user == null)
-                {
-                    return NotFound($"User with Id: {id} not found!..");
-                }
-                return Ok(user);
+                _logger.LogError(
+                    $"ERROR SELECT ToteInformation WHERE Id = {id} IN UserController, Message: User with Id: {id} not found!..");
+                return NotFound($"User with Id: {id} not found!..");
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
-            }
+
+            return Ok(user);
         }
-        
-        [HttpPost]
-        public async Task<IActionResult> Post(NewUserDTO value)
+        catch (Exception ex)
         {
-            if (value == null ||
-                string.IsNullOrWhiteSpace(value.PhoneNumber) ||
-                string.IsNullOrWhiteSpace(value.Password) ||
-                string.IsNullOrWhiteSpace(value.Email))
+            _logger.LogError($"ERROR SELECT ToteInformation WHERE Id = {id} IN UserController {ex.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error: {ex.Message}");
+        }
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Post(NewUserDTO value)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(value.PhoneNumber) || string.IsNullOrWhiteSpace(value.Password) ||
+                string.IsNullOrWhiteSpace(value.Email) || value == null)
             {
-                return BadRequest("All fields are required");
+                _logger.LogError(
+                    $"ERROR INSERT ToteInformation IN UserController, Message: The entity cannot be null, all field are required");
+                return BadRequest("The entity cannot be null, all field are required");
             }
 
             await _userAppService.AddUserAsync(value);
-            return Created("", new { message = "User added successfully" });
+            return Ok(new { message = "User added successfully" });
         }
-        
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(string id, EditUserDTO value)
+        catch (Exception ex)
         {
-            try
-            {
-                await _userAppService.EditUserAsync(id, value);
-                return Ok(new { message = "User edited successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
-            }
+            _logger.LogError($"ERROR INSERT ToteInformation IN UserController {ex.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
         }
-        
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            try
-            {
-                string authorizationHeader = HttpContext.Request.Headers["Authorization"];
-
-                if (string.IsNullOrEmpty(authorizationHeader))
-                {
-                    return BadRequest("Missing Authorization header");
-                }
-
-                int bearerIndex = authorizationHeader.IndexOf("Bearer", StringComparison.OrdinalIgnoreCase);
-
-                if (bearerIndex == -1)
-                {
-                    return BadRequest("Invalid Authorization header");
-                }
-
-                string token = authorizationHeader.Substring(bearerIndex + "Bearer".Length).Trim();
-                string email = await ExtractClaimFromTokenAsync(token, "email");
-                List<UserDTO> users = await _userAppService.GetUsersAsync();
-                UserDTO actualUser = users.FirstOrDefault(x => x.Email == email);
-                if (actualUser.Id != id && actualUser != null)
-                {
-                    await _userAppService.DeleteUserAsync(id);
-                    return Ok(new { message = "User deleted successfully" });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Cannot delete the same user with which the session has been initiated." });
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
-            }
-        }
-
-        
-        [HttpGet("roles")]
-        public async Task<IActionResult> GetRoles()
-        {
-            try
-            {
-                List<RolesNameDTO> roles = await _userAppService.GetRolesAsync();
-                return Ok(roles);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = $"{ex.Message}" });
-            }
-        }
-
-        private async Task<string> ExtractClaimFromTokenAsync(string token, string claimType)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-            if (jsonToken != null)
-            {
-                return await Task.FromResult(jsonToken.Claims.FirstOrDefault(claim => claim.Type == claimType)?.Value);
-            }
-
-            return null;
-        }
-
     }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(string id, EditUserDTO value)
+    {
+        try
+        {
+            await _userAppService.EditUserAsync(id, value);
+            return Ok(new { message = "User edited successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"ERROR UPDATE ToteInformation WHERE Id = {id} IN UserController {ex.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Message = $"{ex.Message}" });
+        }
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        try
+        {
+            /*
+            string authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
+            if (string.IsNullOrEmpty(authorizationHeader))
+            {
+                return BadRequest("Missing Authorization header");
+            }
+
+            int bearerIndex = authorizationHeader.IndexOf("Bearer", StringComparison.OrdinalIgnoreCase);
+
+            if (bearerIndex == -1)
+            {
+                return BadRequest("Invalid Authorization header");
+            }
+
+            string token = authorizationHeader.Substring(bearerIndex + "Bearer".Length).Trim();
+            string email = await ExtractClaimFromTokenAsync(token, "email");
+            List<UserDTO> users = await _userAppService.GetUsersAsync();
+            UserDTO actualUser = users.FirstOrDefault(x => x.Email == email);
+            if (actualUser.Id != id && actualUser != null)
+            {*/
+                await _userAppService.DeleteUserAsync(id);
+                return Ok(new { message = "User deleted successfully" });
+            //}
+           // else
+           // {
+           //     return BadRequest(new
+           //         { message = "Cannot delete the same user with which the session has been initiated." });
+          //  }
+
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
+        }
+    }
+
+    
+    [HttpGet("roles")]
+    public async Task<IActionResult> GetRoles()
+    {
+        try
+        {
+            List<RolesNameDTO> roles = await _userAppService.GetRolesAsync();
+            return Ok(roles);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"ERROR GetRoles IN UserController {ex.Message}");
+            return StatusCode(500, new { error = $"{ex.Message}" });
+        }
+    }
+
+    private async Task<string> ExtractClaimFromTokenAsync(string token, string claimType)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+        if (jsonToken != null)
+        {
+            return await Task.FromResult(jsonToken.Claims.FirstOrDefault(claim => claim.Type == claimType)?.Value);
+        }
+
+        return null;
+    }
+}
+

@@ -26,6 +26,7 @@ using BusSystem.DataAccess.Repositories.Routes;
 using BusSystem.DataAccess.Repositories.SeatSettings;
 using BusSystem.DataAccess.Repositories.Tickets;
 using BusSystem.DataAccess.Repositories.Travels;
+using Luxottica.ApplicationServices.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -152,7 +153,20 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()));
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
+    string[] roles = { "Admin", "User" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
